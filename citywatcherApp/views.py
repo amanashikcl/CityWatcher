@@ -8,16 +8,33 @@ import folium
 from folium import plugins
 
 
+from django.db import IntegrityError # Add this import at the top
+
 def register(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user_type = request.POST['user_type']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user_type = request.POST.get('user_type')
 
-        user = User.objects.create_user(username=username, password=password)
-        UserProfile.objects.create(user=user, user_type=user_type)
-        messages.success(request, 'Registration successful!')
-        return redirect('login')
+        if not username or not password:
+            messages.error(request, 'Username and password are required.')
+            return render(request, 'register.html')
+
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username is already taken. Please choose another.')
+            return render(request, 'register.html')
+
+        try:
+            user = User.objects.create_user(username=username, password=password)
+            UserProfile.objects.create(user=user, user_type=user_type)
+            
+            messages.success(request, 'Registration successful! Please log in.')
+            return redirect('login')
+            
+        except IntegrityError:
+            messages.error(request, 'A database error occurred. Please try again.')
+            return render(request, 'register.html')
 
     return render(request, 'register.html')
 
