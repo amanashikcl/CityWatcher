@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold">{{ report.title }}</h1>
+<div class="report-card">
+    <img src="{{ report.image.url }}" alt="{{ report.title }}">
+    <p><strong>Description:</strong> {{ report.description }}</p>
+    <p><strong>Status:</strong> <span class="status-{{ report.status }}">{{ report.get_status_display }}</span></p>
+    <p><strong>Location:</strong> {{ report.latitude }}, {{ report.longitude }}</p>
+    <a href="https://www.google.com/maps/dir/?api=1&destination={{ report.latitude }},{{ report.longitude }}"
+        target="_blank" class="btn btn-success" style="margin-bottom: 10px;">
+        <i class="fa-solid fa-map"></i>Navigate with Google Maps
+    </a>
+    <p><strong>Reported by:</strong> {{ report.citizen.username }}</p>
+    {% if report.worker %}
+    <p><strong>Assigned to:</strong> {{ report.worker.username }}</p>
+    {% endif %}
+    <p><strong>Created:</strong> {{ report.created_at|date:"M d, Y H:i" }}</p>
+    <p><strong>Updated:</strong> {{ report.updated_at|date:"M d, Y H:i" }}</p>
+</div>
+<a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
+{% endblock %}

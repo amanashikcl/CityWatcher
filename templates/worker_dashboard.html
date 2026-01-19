@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4 text-2xl font-bold" style="color: oklch(12.9% 0.042 264.695);">Assigned Reports</h2>
+{% for report in reports %}
+<div class="report-card">
+    <h3>{{ report.title }}</h3>
+    <p>{{ report.description }}</p>
+    <p>Status: <span class="status-{{ report.status }}">{{ report.get_status_display }}</span></p>
+    <a href="{% url 'report_detail' report.id %}">View Details</a>
+    {% if report.status != 'completed' %}
+        <a href="{% url 'complete_report' report.id %}" class="btn btn-success">Mark as Completed</a>
+    {% endif %}
+</div>
+{% empty %}
+<p>No reports assigned to you.</p>
+{% endfor %}
+{% endblock %}

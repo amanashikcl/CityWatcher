@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>All Reports - Admin Dashboard</h2>
+
+<h3>Interactive Map</h3>
+<div style="margin-bottom: 30px;">
+    {{ map_html|safe }}
+</div>
+
+<h3>Report List</h3>
+{% for report in reports %}
+<div class="report-card flex gap-4">
+    {% if report.image %}
+    <div class="flex-shrink-0">
+        <img src="{{ report.image.url }}" alt="{{ report.title }}" class="w-32 h-32 object-cover rounded-lg">
+    </div>
+    {% endif %}
+    <div class="flex-1">
+        <h3>{{ report.title }}</h3>
+        <p>Reported by: {{ report.citizen.username }}</p>
+        <p>Status: <span class="status-{{ report.status }}">{{ report.get_status_display }}</span></p>
+        <p>Location: {{ report.latitude }}, {{ report.longitude }}</p>
+
+        {% if report.worker %}
+        <p>Assigned to: {{ report.worker.username }}</p>
+        {% else %}
+        <form method="post" action="{% url 'assign_worker' report.id %}" style="display: inline;">
+            {% csrf_token %}
+            <select name="worker_id" required>
+                <option value="">Select Worker</option>
+                {% for worker in workers %}
+                <option value="{{ worker.id }}">{{ worker.username }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn">Assign</button>
+        </form>
+        {% endif %}
+
+        <div class="flex gap-2 mt-2">
+            <a class="btn btn-soft btn-info" href="{% url 'report_detail' report.id %}">View Details</a>
+            <form method="post" action="{% url 'delete_report' report.id %}"
+                onsubmit="return confirm('Are you sure you want to delete this report?');" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-soft btn-error">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>No reports yet.</p>
+{% endfor %}
+{% endblock %}
